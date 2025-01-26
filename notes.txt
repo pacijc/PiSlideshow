@@ -1,0 +1,6 @@
+Path to destktop entry for autostart
+- /home/user/.config/autostart
+
+This worked but i feel like this is a local address or something not robust
+look into this later
+ssh user@10.0.0.153
