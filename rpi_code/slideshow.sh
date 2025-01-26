@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #what folder do iadd foilders to
-#what would work best with ssh
-#test ssh <<<<<
 
-fehshow "/home/user/Desktop/New"
+#start slideshow from active_slideshow folder
+fehshow "~/PiSlideshow/active_slideshow"
