@@ -1,6 +1,19 @@
 Path to destktop entry for autostart
 - /home/user/.config/autostart
 
-This worked but i feel like this is a local address or something not robust
-look into this later
+This worked but i feel like this is not robust
+look into this later, try to set up a permanant ip?
 ssh user@10.0.0.153
+
+Use tkinter and python to make a GUI
+    - what do i need this to do
+    - designate what slides to run
+    - change slideshow settings
+
+    - start slideshow
+    - control pi power? (power off, reboot, etc)
+
+need to check for python installation, make install script
+
+use Plymouth to update the splash text during boot
+probably should make it so you dont have to reboot after updating the slides
