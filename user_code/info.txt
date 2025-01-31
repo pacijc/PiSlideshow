@@ -1,6 +1,6 @@
 HOW TO USE THIS APP
 
-1. Click 'Browse' and select the folder containing your slides
+1. Click 'Browse Files' and select the folder containing your slides
 2. Make any necessary changes to the slideshow settings
 3. Click send to play your chosen slideshow on the TV
 4. Click 'Quit'

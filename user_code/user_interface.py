@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+import subprocess
 import os
 
 DEFAULT_PAD = 10
@@ -100,8 +101,8 @@ def browse_files(label):
     dirpath = filedialog.askdirectory(title = "Select a Folder")
     if dirpath:
         #update dir_path_label and show send button if the selected directory is valid
-        if process_path(dirpath, label) != -1:label.config(text=dirpath); show_send()
-        else: hide_send()
+        if process_path(dirpath, label) != -1:label.config(text=dirpath); allow_send()
+        else: disable_send()
 
 #Checks that the contents of the folder are all jpg
 def process_path(dirpath, label):
@@ -120,10 +121,10 @@ def check_extension(filename):
         if test == extension: return 0
     return -1
 
-#control visibility of send button
-def show_send():
+#control activeness of send button
+def allow_send():
     app.control_window.send_button.config(state=NORMAL)
-def hide_send():
+def disable_send():
     app.control_window.send_button.config(state=DISABLED)
 
 def get_text(filename):
@@ -133,8 +134,8 @@ def get_text(filename):
 
 #send folder of new slides to pi
 def update_slides():
-    
-    print("Sent Slides")
+    success = subprocess.run(["bash", "./user_code/set_active.sh", app.file_window.dir_path_label.cget("text")])
+    if success: print("Sent Slides from this filepath:" + app.file_window.dir_path_label.cget("text"))
 
 if __name__ == "__main__":
     app = MainWindow()
