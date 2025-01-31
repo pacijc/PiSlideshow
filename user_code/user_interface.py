@@ -37,6 +37,9 @@ class InfoWindow(Frame):
         self.label = Label(self, text="Info window")
         self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
 
+        self.info = ttk.Label(self, text=get_text('user_code/info.txt'))
+        self.info.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+
 class SettingsWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
@@ -90,6 +93,7 @@ class MainWindow(Tk):
         self.info_window = InfoWindow(self)
         self.info_window.grid(column=3, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="e")
 
+#-----------------Functions--------------------------------------
 
 #Opens a file explorer dialog and checks that slected dir is valid
 def browse_files(label):
@@ -122,8 +126,14 @@ def show_send():
 def hide_send():
     app.control_window.send_button.config(state=DISABLED)
 
+def get_text(filename):
+    with open(filename, 'r') as f:
+        content = f.read()
+    return content
+
 #send folder of new slides to pi
 def update_slides():
+    
     print("Sent Slides")
 
 if __name__ == "__main__":
