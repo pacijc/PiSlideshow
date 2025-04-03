@@ -5,15 +5,16 @@ This worked but i feel like this is not robust
 look into this later, try to set up a permanant ip?
 ssh user@10.0.0.153
 
-Use tkinter and python to make a GUI
-    - what do i need this to do
-    - designate what slides to run
-    - change slideshow settings
+new static ip: 192.168.2.1
+change in file /etc/systemd/network/usb0.network
 
-    - start slideshow
-    - control pi power? (power off, reboot, etc)
+run to save:
+    sudo ifup usb0
+    sudo ifdown usb0
 
-need to check for python installation, make install script
+Mass storage file locations:
+Mass storage location: /media/slideshow_usb
+Mass storage system setup: /etc/systemd/system/
+Mass storage script: /usr/local/bin/setup-usb-gadget
 
-use Plymouth to update the splash text during boot
-probably should make it so you dont have to reboot after updating the slides
+Slideshow scripts: ~/PiSlideshow/rpi_code

@@ -16,7 +16,7 @@ class FileWindow(Frame):
     #add widgets to window
     def widgets(self):
         self.label = Label(self, text="File window")
-        self.label.grid(row=0, column=0, padx=100, sticky="n")
+        self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
 
         #displays path for selected folder
         self.dir_path_label = ttk.Label(self, text="")
@@ -24,7 +24,7 @@ class FileWindow(Frame):
 
         #button which prompts for file selection
         self.browse_button = ttk.Button(self, text="Browse Files", command=lambda: browse_files(self.dir_path_label))
-        self.browse_button.grid(column=0, row=1, padx=50, pady=50)
+        self.browse_button.grid(column=0, row=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
 class InfoWindow(Frame):
     #initialize sub window as a frame
@@ -54,6 +54,11 @@ class SettingsWindow(Frame):
         self.label = Label(self, text="Settings window")
         self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
 
+        self.label = Label(self, text="Use this slider to change the duration of each slide")
+        self.label.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
+
+        self.time = ttk.Spinbox(self, from_=1, to=30)
+        self.time.grid(row=2, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 class ControlWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
@@ -64,7 +69,7 @@ class ControlWindow(Frame):
     #add widgets to window
     def widgets(self):
         self.label = Label(self, text="Control window")
-        self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        self.label.grid(row=0, column=0, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
         #send files to the pi
         #only appears when process_path determines a path is valid
@@ -86,13 +91,13 @@ class MainWindow(Tk):
         self.file_window.grid(column=0, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
 
         self.settings_window = SettingsWindow(self)
-        self.settings_window.grid(column=0, row=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
+        self.settings_window.grid(column=0, row=1, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
 
         self.control_window = ControlWindow(self)
-        self.control_window.grid(column=3, row=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="e")
+        self.control_window.grid(column=1, row=1, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="e")
 
         self.info_window = InfoWindow(self)
-        self.info_window.grid(column=3, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="e")
+        self.info_window.grid(column=1, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
 
 #-----------------Functions--------------------------------------
 
