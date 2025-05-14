@@ -38,9 +38,6 @@ class InfoWindow(Frame):
         self.label = Label(self, text="Info window")
         self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
 
-        self.info = ttk.Label(self, text=get_text('user_code/info.txt'))
-        self.info.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
-
 class ControlWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
