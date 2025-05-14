@@ -1,6 +1,6 @@
 from tkinter import *
-from tkinter import ttk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox, ttk
+from pdf2image import convert_from_path
 import subprocess
 import os
 
@@ -59,6 +59,7 @@ class SettingsWindow(Frame):
 
         self.time = ttk.Spinbox(self, from_=1, to=30)
         self.time.grid(row=2, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+
 class ControlWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
@@ -78,12 +79,16 @@ class ControlWindow(Frame):
         #quit button
         self.quit = ttk.Button(self, text="Quit", command=self.parent.destroy)
         self.quit.grid(row=1, column=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="e")
+        #convert button
+        self.convert = ttk.Button(self, text="Convert", command=convert_pdf)
+        self.convert.grid(row=2, column=0,columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
 class MainWindow(Tk):
     #init this window as root window
     def __init__(self):
         Tk.__init__(self)
         self.mainWidgets()
+        self.selectedFile = ""
 
     #add child windows to main window
     def mainWidgets(self):
@@ -101,37 +106,30 @@ class MainWindow(Tk):
 
 #-----------------Functions--------------------------------------
 
-#Opens a file explorer dialog and checks that slected dir is valid
+#Opens a file explorer dialog and checks that slected file is valid
 def browse_files(label):
-    dirpath = filedialog.askdirectory(title = "Select a Folder")
-    if dirpath:
+    pdf_path = filedialog.askopenfilename(
+        filetypes=[("PDF files", "*.pdf")],
+        title = "Select a Folder"
+        )
+    
+    if not pdf_path: disable_send()
+    else: 
+        label.config(text=pdf_path)
+        app.selectedFile=pdf_path
+        allow_send()
         #update dir_path_label and show send button if the selected directory is valid
-        if process_path(dirpath, label) != -1:label.config(text=dirpath); allow_send()
-        else: disable_send()
-
-#Checks that the contents of the folder are all jpg
-def process_path(dirpath, label):
-    try:
-        if(len(os.listdir(dirpath)) == 0):raise Exception("The selected folder is empty")
-        for filename in os.listdir(dirpath):
-            if check_extension(filename) == -1: raise Exception("Please ensure all files in folder are .jpg")
-    except Exception as e:
-        label.config(text=f"Error: {str(e)}")
-        return -1
-
-#check that the extension of a file is jpg
-def check_extension(filename):
-    extension = os.path.splitext(filename)[1]
-    for test in (".jpg", ".jpeg", ".jfif", ".jpe", ".jif"):
-        if test == extension: return 0
-    return -1
+        #if process_path(pdf_path, label) != -1:label.config(text=pdf_path); allow_send()
+        #else: disable_send()
 
 #control activeness of send button
 def allow_send():
     app.control_window.send_button.config(state=NORMAL)
+
 def disable_send():
     app.control_window.send_button.config(state=DISABLED)
 
+#read contents from file
 def get_text(filename):
     with open(filename, 'r') as f:
         content = f.read()
@@ -142,6 +140,18 @@ def update_slides():
     success = subprocess.run(["bash", "./user_code/set_active.sh", app.file_window.dir_path_label.cget("text")])
     if success: print("Sent Slides from this filepath:" + app.file_window.dir_path_label.cget("text"))
 
+#convert pdf to png (potential issues with cross compatibility)
+def convert_pdf():
+    output_folder = os.path.splitext(app.selectedFile)[0] + "_slides"
+    os.makedirs(output_folder, exist_ok=True)
+    try:
+        images = convert_from_path(app.selectedFile)
+        for i, img in enumerate(images):
+            img.save(os.path.join(output_folder, f"page_{i+1:03d}.png"), "PNG")
+
+        messagebox.showinfo("Success", f"Saved {len(images)} pages to:\n{output_folder}")
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
 if __name__ == "__main__":
     app = MainWindow()
     app.mainloop()
