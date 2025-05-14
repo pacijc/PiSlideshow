@@ -41,25 +41,6 @@ class InfoWindow(Frame):
         self.info = ttk.Label(self, text=get_text('user_code/info.txt'))
         self.info.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
-class SettingsWindow(Frame):
-    #initialize sub window as a frame
-    def __init__(self,parent):
-        Frame.__init__(self, parent, bg="blue")
-        #self.grid_propagate(False)
-        self.parent = parent
-        self.widgets()
-
-    #add widgets to window
-    def widgets(self):
-        self.label = Label(self, text="Settings window")
-        self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
-
-        self.label = Label(self, text="Use this slider to change the duration of each slide")
-        self.label.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
-
-        self.time = ttk.Spinbox(self, from_=1, to=30)
-        self.time.grid(row=2, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
-
 class ControlWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
@@ -70,18 +51,24 @@ class ControlWindow(Frame):
     #add widgets to window
     def widgets(self):
         self.label = Label(self, text="Control window")
-        self.label.grid(row=0, column=0, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        self.label.grid(row=0, column=1, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        
+        self.label2 = Label(self, text="Change Slide Duration")
+        self.label2.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
 
         #send files to the pi
         #only appears when process_path determines a path is valid
         self.send_button = ttk.Button(self, text="SEND", state=DISABLED, command=update_slides)
-        self.send_button.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
+        self.send_button.grid(row=1, column=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         #quit button
         self.quit = ttk.Button(self, text="Quit", command=self.parent.destroy)
-        self.quit.grid(row=1, column=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="e")
+        self.quit.grid(row=1, column=3, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         #convert button
-        self.convert = ttk.Button(self, text="Convert", command=convert_pdf)
-        self.convert.grid(row=2, column=0,columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        self.convert = ttk.Button(self, text="Convert", state=DISABLED, command=convert_pdf)
+        self.convert.grid(row=1, column=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        #slide duration spinbox
+        self.time = ttk.Spinbox(self, from_=1, to=30)
+        self.time.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
 class MainWindow(Tk):
     #init this window as root window
@@ -95,11 +82,8 @@ class MainWindow(Tk):
         self.file_window = FileWindow(self)
         self.file_window.grid(column=0, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
 
-        self.settings_window = SettingsWindow(self)
-        self.settings_window.grid(column=0, row=1, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
-
         self.control_window = ControlWindow(self)
-        self.control_window.grid(column=1, row=1, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="e")
+        self.control_window.grid(column=0, row=2, columnspan=3, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="s")
 
         self.info_window = InfoWindow(self)
         self.info_window.grid(column=1, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
@@ -113,14 +97,15 @@ def browse_files(label):
         title = "Select a Folder"
         )
     
-    if not pdf_path: disable_send()
+    if not pdf_path:
+        disable_send()
+        app.control_window.convert.config(state=DISABLED)
+
     else: 
         label.config(text=pdf_path)
         app.selectedFile=pdf_path
         allow_send()
-        #update dir_path_label and show send button if the selected directory is valid
-        #if process_path(pdf_path, label) != -1:label.config(text=pdf_path); allow_send()
-        #else: disable_send()
+        app.control_window.convert.config(state=NORMAL)
 
 #control activeness of send button
 def allow_send():
@@ -137,12 +122,15 @@ def get_text(filename):
 
 #send folder of new slides to pi
 def update_slides():
-    success = subprocess.run(["bash", "./user_code/set_active.sh", app.file_window.dir_path_label.cget("text")])
-    if success: print("Sent Slides from this filepath:" + app.file_window.dir_path_label.cget("text"))
-
+    cwd = os.getcwd()
+    path = cwd+"/active_slideshow"
+    print(path)
+    os.makedirs(path, exist_ok=True)
+    
 #convert pdf to png (potential issues with cross compatibility)
 def convert_pdf():
-    output_folder = os.path.splitext(app.selectedFile)[0] + "_slides"
+    cwd = os.getcwd()
+    output_folder = cwd+"/active_slideshow"
     os.makedirs(output_folder, exist_ok=True)
     try:
         images = convert_from_path(app.selectedFile)
@@ -152,6 +140,7 @@ def convert_pdf():
         messagebox.showinfo("Success", f"Saved {len(images)} pages to:\n{output_folder}")
     except Exception as e:
         messagebox.showerror("Error", str(e))
+        
 if __name__ == "__main__":
     app = MainWindow()
     app.mainloop()
