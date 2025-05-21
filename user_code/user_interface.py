@@ -13,7 +13,7 @@ info_text = """
 3. Click 'Quit' to exit program
 4. Connect device to tv in order to start slideshow
 
-To change slide duration, update value in the slider before pressing quit
+To change slide duration, type duration in the box before pressing quit
 """
 
 class FileWindow(Frame):
@@ -26,7 +26,7 @@ class FileWindow(Frame):
     #add widgets to window
     def widgets(self):
         #displays path for selected folder
-        self.dir_path_label = ttk.Label(self, text="", borderwidth=3, relief=SUNKEN, padding=3)
+        self.dir_path_label = ttk.Label(self, text="\t\t\t\t\t", borderwidth=3, relief=SUNKEN, padding=3)
         self.dir_path_label.grid(column=1, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)        
 
         #button which prompts for file selection
@@ -42,12 +42,30 @@ class InfoWindow(Frame):
 
     #add widgets to window
     def widgets(self):
-        self.label = Label(self, text= "HOW TO USE THIS APP", bg=WINDOW_COLOR)
+        self.label = Label(self, text= "HOW TO USE", relief=GROOVE, bd=3, bg=WINDOW_COLOR, padx=3, pady=3)
         self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         
         self.info = Label(self, text=info_text, bg=INSET_COLOR, justify=LEFT, relief=SUNKEN, borderwidth=5, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         self.info.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
+class TimeWindow(Frame):
+    #initialize sub window as a frame
+    def __init__(self,parent):
+        Frame.__init__(self, parent, bd=5, relief=RIDGE, bg=WINDOW_COLOR)
+        self.parent = parent
+        self.time = StringVar()
+        self.widgets()
+
+    #add widgets to window
+    def widgets(self):
+        #slide label
+        self.label = Label(self, text="Change Slide Duration", background=WINDOW_COLOR)
+        self.label.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
+
+        #slide duration entry box
+        self.time = ttk.Entry(self,textvariable=self.time, justify=RIGHT, foreground="black")
+        self.time.grid(row=1, column=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        
 class ControlWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
@@ -57,28 +75,17 @@ class ControlWindow(Frame):
 
     #add widgets to window
     def widgets(self):
-        self.label2 = Label(self, text="Change Slide Duration")
-        self.label2.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="n")
-
-        #send files to the pi
-        #only appears when process_path determines a path is valid
-        #self.send_button = ttk.Button(self, text="SEND", state=DISABLED, command=update_slides)
-        #self.send_button.grid(row=1, column=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
-        
         #quit button
         self.quit = ttk.Button(self, text="Quit", command=self.parent.destroy)
         self.quit.grid(row=1, column=3, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         #convert button
         self.convert = ttk.Button(self, text="Convert", state=DISABLED, command=convert_pdf)
-        self.convert.grid(row=1, column=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
-        #slide duration spinbox
-        self.time = ttk.Spinbox(self, from_=1, to=30)
-        self.time.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        self.convert.grid(row=1, column=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
 class MainWindow(Tk):
     #init this window as root window
     def __init__(self):
-        Tk.__init__(self, screenName="PDF Slideshow App")
+        Tk.__init__(self)
         ttk.Style().theme_use('default')
         self.configure(background="#708090")
         self.mainWidgets()
@@ -87,14 +94,16 @@ class MainWindow(Tk):
     #add child windows to main window
     def mainWidgets(self):
         self.info_window = InfoWindow(self)
-        self.info_window.grid(column=0, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
+        self.info_window.grid(column=0, row=0, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         
         self.file_window = FileWindow(self)
-        self.file_window.grid(column=0, row=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
+        self.file_window.grid(column=0, row=1, columnspan=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
         self.control_window = ControlWindow(self)
-        self.control_window.grid(column=0, row=2, columnspan=3, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
+        self.control_window.grid(column=1, row=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
+        self.time_window = TimeWindow(self)
+        self.time_window.grid(column=0, row=2, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         
 
 #-----------------Functions--------------------------------------
@@ -152,4 +161,5 @@ def convert_pdf():
         
 if __name__ == "__main__":
     app = MainWindow()
+    app.title("PDF Slideshow App")
     app.mainloop()
