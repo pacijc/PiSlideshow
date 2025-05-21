@@ -142,6 +142,10 @@ def get_text(filename):
 def convert_pdf():
     cwd = os.getcwd()
     output_folder = cwd+"/active_slideshow"
+    try:
+        os.rmdir(output_folder)
+    except OSError as error:
+        print(error)
     os.makedirs(output_folder, exist_ok=True)
     try:
         images = convert_from_path(app.selectedFile)
