@@ -76,7 +76,7 @@ class ControlWindow(Frame):
     #add widgets to window
     def widgets(self):
         #quit button
-        self.quit = ttk.Button(self, text="Quit", command=self.parent.destroy)
+        self.quit = ttk.Button(self, text="Quit", command=lambda: quit(self))
         self.quit.grid(row=1, column=3, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
         #convert button
         self.convert = ttk.Button(self, text="Convert", state=DISABLED, command=convert_pdf)
@@ -125,13 +125,6 @@ def browse_files(label):
         #allow_send()
         app.control_window.convert.config(state=NORMAL)
 
-#control activeness of send button
-def allow_send():
-    app.control_window.send_button.config(state=NORMAL)
-
-def disable_send():
-    app.control_window.send_button.config(state=DISABLED)
-
 #read contents from file
 def get_text(filename):
     with open(filename, 'r') as f:
@@ -139,11 +132,11 @@ def get_text(filename):
     return content
 
 #send folder of new slides to pi
-def update_slides():
-    cwd = os.getcwd()
-    path = cwd+"/active_slideshow"
-    print(path)
-    os.makedirs(path, exist_ok=True)
+#def update_slides():
+#    cwd = os.getcwd()
+#    path = cwd+"/active_slideshow"
+#    print(path)
+#    os.makedirs(path, exist_ok=True)
     
 #convert pdf to png (potential issues with cross compatibility)
 def convert_pdf():
@@ -158,6 +151,35 @@ def convert_pdf():
         messagebox.showinfo("Success", f"Saved {len(images)} pages to:\n{output_folder}")
     except Exception as e:
         messagebox.showerror("Error", str(e))
+        
+def update_duration():
+    outputPath=os.getcwd()+"/Other/duration.txt"
+    time = app.time_window.time.get()
+    if(not time):
+        return
+    #check input is valid number
+    try: 
+        itime = int(time)
+        if(itime not in range(1, 30)):
+            messagebox.showerror("Error", "Please enter a number between 1 and 30")
+            return -1
+    except:
+        messagebox.showerror("Error", "Please enter a number between 1 and 30")
+        return -1
+    
+    # add proper string for duration to a file here
+    durString = "feh -F --zoom max -D "+time+" --hide-pointer --sort name --version-sort"
+    print(durString)
+    with open(outputPath, "w") as file:
+        file.write("#!/bin/bash\ncd \"$1\"\n"+durString)
+        file.close()
+    return
+    #in pi, check if file updated, then change autostart script accordingly
+    
+    
+def quit(self):
+    if update_duration() == -1: return
+    self.parent.destroy()
         
 if __name__ == "__main__":
     app = MainWindow()
