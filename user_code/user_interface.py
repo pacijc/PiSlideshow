@@ -4,9 +4,10 @@ from pdf2image import convert_from_path
 import os
 
 DEFAULT_PAD = 10
+WINDOW_COLOR = "#536878"
+INSET_COLOR = "#36454f"
 
-info_text = """HOW TO USE THIS APP
-
+info_text = """
 1. Click 'Browse Files' and select the PDF containing your slideshow
 2. Once your file has been selected, press 'Convert' to prepare the slides
 3. Click 'Quit' to exit program
@@ -18,14 +19,14 @@ To change slide duration, update value in the slider before pressing quit
 class FileWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
-        Frame.__init__(self, parent, bd=5, relief=RIDGE)
+        Frame.__init__(self, parent, bd=5, relief=RIDGE, bg=WINDOW_COLOR)
         self.parent = parent
         self.widgets()
 
     #add widgets to window
     def widgets(self):
         #displays path for selected folder
-        self.dir_path_label = ttk.Label(self, text="", relief=SUNKEN)
+        self.dir_path_label = ttk.Label(self, text="", borderwidth=3, relief=SUNKEN, padding=3)
         self.dir_path_label.grid(column=1, row=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)        
 
         #button which prompts for file selection
@@ -35,19 +36,22 @@ class FileWindow(Frame):
 class InfoWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
-        Frame.__init__(self, parent, bd=5, relief=RIDGE, bg="purple")
+        Frame.__init__(self, parent, bd=5, relief=RIDGE, bg=WINDOW_COLOR)
         self.parent = parent
         self.widgets()
 
     #add widgets to window
     def widgets(self):
-        self.text = Label(self, text=info_text, justify=LEFT, relief=RIDGE, borderwidth=5, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
-        self.text.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        self.label = Label(self, text= "HOW TO USE THIS APP", bg=WINDOW_COLOR)
+        self.label.grid(row=0, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        
+        self.info = Label(self, text=info_text, bg=INSET_COLOR, justify=LEFT, relief=SUNKEN, borderwidth=5, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
+        self.info.grid(row=1, column=0, padx=DEFAULT_PAD, pady=DEFAULT_PAD)
 
 class ControlWindow(Frame):
     #initialize sub window as a frame
     def __init__(self,parent):
-        Frame.__init__(self, parent, bd=5, relief=RIDGE, bg="red")
+        Frame.__init__(self, parent, bd=5, relief=RIDGE, bg=WINDOW_COLOR)
         self.parent = parent
         self.widgets()
 
@@ -74,8 +78,9 @@ class ControlWindow(Frame):
 class MainWindow(Tk):
     #init this window as root window
     def __init__(self):
-        Tk.__init__(self)
+        Tk.__init__(self, screenName="PDF Slideshow App")
         ttk.Style().theme_use('default')
+        self.configure(background="#708090")
         self.mainWidgets()
         self.selectedFile = ""
 
@@ -88,7 +93,7 @@ class MainWindow(Tk):
         self.file_window.grid(column=0, row=1, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
 
         self.control_window = ControlWindow(self)
-        self.control_window.grid(column=0, row=2, columnspan=3, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="s")
+        self.control_window.grid(column=0, row=2, columnspan=3, padx=DEFAULT_PAD, pady=DEFAULT_PAD, sticky="w")
 
         
 
@@ -102,13 +107,13 @@ def browse_files(label):
         )
     
     if not pdf_path:
-        disable_send()
+       #disable_send()
         app.control_window.convert.config(state=DISABLED)
 
     else: 
         label.config(text=pdf_path)
         app.selectedFile=pdf_path
-        allow_send()
+        #allow_send()
         app.control_window.convert.config(state=NORMAL)
 
 #control activeness of send button
